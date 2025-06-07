@@ -71,6 +71,23 @@
             </svg>
             <span class="text-xs font-medium">Сброс</span>
           </button>
+          
+          <button 
+            @click="copyAutoResumeScript" 
+            title="Скопировать скрипт auto resume"
+            class="group flex items-center space-x-2 px-3 py-2 text-white transition-all duration-300 shadow-md hover:shadow-lg rounded-xl"
+            :class="showAutoResumeNotification 
+              ? 'bg-gradient-to-br from-blue-500 to-indigo-600' 
+              : 'bg-gradient-to-br from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700'"
+          >
+            <svg v-if="!showAutoResumeNotification" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span class="text-xs font-medium">{{ showAutoResumeNotification ? 'Скопировано!' : 'Auto Resume' }}</span>
+          </button>
 
           <input type="file" ref="fileInput" @change="uploadPresets" accept=".json" class="hidden" />
         </div>
@@ -460,6 +477,7 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import type { Preset, Rule, PresetCollection } from '~/types'
 import { usePromptGenerator } from '~/composables/usePromptGenerator'
 import { usePresets } from '~/composables/usePresets'
+import { useConstants } from '~/composables/useConstants'
 
 const SELECTED_PRESET_KEY = 'selectedPresetKey'
 
@@ -475,6 +493,7 @@ const {
   importPresets, 
   resetToDefaults 
 } = usePresets()
+const { AUTO_RESUME_SCRIPT } = useConstants()
 
 // Reactive state
 const selectedPresetKey = ref<string>('')
@@ -493,6 +512,7 @@ const currentPreset = ref<Preset>({
 const fileInput = ref<HTMLInputElement>()
 const rulesContainer = ref<HTMLElement>()
 const showCopyNotification = ref(false)
+const showAutoResumeNotification = ref(false)
 
 // Computed
 const generatedPrompt = computed(() => {
@@ -610,6 +630,18 @@ const copyToClipboard = async () => {
     showCopyNotification.value = true
     setTimeout(() => {
       showCopyNotification.value = false
+    }, 2000)
+  } catch (err) {
+    console.error('Ошибка копирования:', err)
+  }
+}
+
+const copyAutoResumeScript = async () => {
+  try {
+    await navigator.clipboard.writeText(AUTO_RESUME_SCRIPT)
+    showAutoResumeNotification.value = true
+    setTimeout(() => {
+      showAutoResumeNotification.value = false
     }, 2000)
   } catch (err) {
     console.error('Ошибка копирования:', err)
