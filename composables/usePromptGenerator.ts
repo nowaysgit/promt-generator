@@ -1,18 +1,16 @@
 import type { ProcessTexts, PresetCollection, Rule, ProcessType } from '~/types'
 
 export const usePromptGenerator = () => {
-  // Тексты процессов
+  // Тексты алгоритмов
   const processTexts: ProcessTexts = {
-    analysis: `Процесс:
-Читай .progress → выбирай задачу из pending
+    analysis: `Читай .progress → выбирай задачу из pending
 Используй .progress.helper для контекста
 Выполняй задачу, пройдись по всем директориям и поддиректориям в рамках задачи:
 Перенеси задачу из pending в completed
 Добавь найденные проблемы в problems.
 Дополни .progress.helper новыми данными
 Повторяй пока pending не опустеет`,
-    preparation: `Шаги:
-Проверить существование \`.progress\`:
+    preparation: `Проверить существование \`.progress\`:
 Если файл отсутствует — сообщить об ошибке и завершить работу.
 Обработать проблемы: 
 {
@@ -27,8 +25,7 @@ export const usePromptGenerator = () => {
 Уточнения формулировок (с акцентом на избыточные файлы/сервисы/методы).
 Правила сортировки: проблемы, связанные с дублированием файлов → избыточные сервисы → дубли методов.
 Учитывать зависимости между модулями (сверять с \`architectural_links\` в хелпере).`,
-    fixing: `Процесс:
-1. Для каждого нового запроса:
+    fixing: `1. Для каждого нового запроса:
    1.1 Считай текущее состояние из \`.progress\` и \`.progress.helper\`
    1.2 Извлеки следующую проблему из раздела \`pending\`
    1.3 Внеси необходимые исправления в код проекта
@@ -80,26 +77,22 @@ export const usePromptGenerator = () => {
     sections.push(`# ЗАДАЧА: ${processTypes[processType as keyof typeof processTypes].toUpperCase()}`)
     sections.push(`## ЦЕЛЬ\n${goal}`)
 
+    // 3. Алгоритм выполнения
+    if (processText.trim()) {
+      sections.push(`## АЛГОРИТМ\n${processText}`)
+    }
+
     // 2. Инициализация для анализа
     if (processType === 'analysis') {
       sections.push(`## ИНИЦИАЛИЗАЦИЯ\n### Если отсутствует .progress, создай файл:\n\`\`\`json\n${progressConfig}\n\`\`\``)
       sections.push(`### Создай/обнови .progress.helper:\n\`\`\`json\n${progressHelperConfig}\n\`\`\``)
     }
 
-    // 3. Алгоритм выполнения
-    if (processText.trim()) {
-      sections.push(`## АЛГОРИТМ\n${processText}`)
-    }
-
     // 4. Структуры файлов и правила
-    if (processType === 'preparation') {
+    if (processType !== 'analysis') {
       sections.push(`## СТРУКТУРА .progress.helper (НЕ ИЗМЕНЯТЬ СХЕМУ)\n\`\`\`json\n${progressHelperConfig}\n\`\`\``)
-    } else if (processType === 'fixing') {
-      sections.push(`## СТРУКТУРА .progress.helper (НЕ ИЗМЕНЯТЬ СХЕМУ)\n\`\`\`json\n${progressHelperConfig}\n\`\`\``)
-      if (progressHelperRules.trim()) {
-        sections.push(`## ПРАВИЛА ДЛЯ .progress.helper\n${progressHelperRules}`)
-      }
-    } else if (progressHelperRules.trim()) {
+    }
+    if (progressHelperRules.trim()) {
       sections.push(`## ПРАВИЛА ДЛЯ .progress.helper\n${progressHelperRules}`)
     }
 
