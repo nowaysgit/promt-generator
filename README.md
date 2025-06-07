@@ -1,5 +1,6 @@
 # Генератор промтов для анализа кода
 Весь код сгенерирован нейросетью!)()()))
+![localhost_3000_ (1)](https://github.com/user-attachments/assets/5d9b3b57-7d49-4711-9646-cdeded1b57ff)
 
 Nuxt 3 с TypeScript на Tailwind CSS.
 
